@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Knockout Raty Binding</title>
+		<script src="./scripts/jquery-1.7.1.min.js" type="text/javascript" language="javascript"></script>
+		<script src="./scripts/jquery.raty-2.1.0.min.js" type="text/javascript" language="javascript"></script>
+		<script src="./scripts/knockout-2.0.0.min.js" type="text/javascript" language="javascript"></script>
+		<script src="./scripts/knockout.raty-0.0.1.js" type="text/javascript" language="javascript"></script>
+		<script type="text/javascript" language="javascript">
+			$(function(){
+				viewModel = {}
+
+				viewModel['ratingBinding'] = ko.observable(3);
+				viewModel['cancelBinding'] = ko.observable(false);
+				viewModel['readOnlyBinding'] = ko.observable(false);
+
+				viewModel['computedRating'] = ko.computed({
+					write: function(value)
+					{
+						viewModel['ratingBinding'](value/2);
+					},
+
+					read: function()
+					{
+						return viewModel['ratingBinding']()*2;
+					}
+				});
+
+				//We use the throttle to make sure we don't get stuck in a recursive loop
+				viewModel['computedRating'].extend({throttle: 1}); 
+
+				viewModel['toggleReadOnly'] = function()
+				{
+					viewModel['readOnlyBinding'](!viewModel['readOnlyBinding']());
+				};
+
+				ko.applyBindings(viewModel)
+			});
+		</script>
+	</head>
+	<body>
+		<div id="star" data-bind="raty: { rating: ratingBinding, half: true, readOnly: readOnlyBinding }"></div>
+		<div id="star" data-bind="raty: { rating: computedRating, number: 10, readOnly: readOnlyBinding }"></div>
+		<section>
+			Value is: <span data-bind="text: ratingBinding"></span><br/>
+			Computed Value is: <span data-bind="text: computedRating"></span><br/>
+			<a href="#" data-bind="click: toggleReadOnly">Toggle Read Only Binding</a>
+			<span data-bind="text: readOnlyBinding() ? 'On' : 'Off'"></span><br/>
+			<strong>!!!! Cancel Doesn't work yet</strong>
+		</section>
+	</body>
+</html>
